@@ -70,3 +70,7 @@ app.post("/user", (req, res) => {
 app.listen(4000, () => {
   console.log("server has started")
 })
+
+
+
+//video: 22:10
