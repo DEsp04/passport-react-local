@@ -15,6 +15,8 @@ const app = express();
 
 let MONGODB_URI = process.env.PROD_MONGODB || process.env.MONGODB_URI || process.env.DB_Cluster_URL;
 
+//----------------------------End of Import-----------------
+
 mongoose.connect( MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -40,10 +42,23 @@ app.use(session({
 }));
 
 app.use(cookieParser("secretcode"))
-
+app.use(passport.initialize());
+app.use(passport.session());
+require(`./passportConfig`)(passport);
+//----------------------------End of MiddleWare-----------------
 //Routes
-app.post("/login", (req, res) => {
-  console.log(req.body)
+app.post("/login", (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) throw err;
+    if (!user) res.send("No user exist");
+    else {
+      req.logIn(user, err => {
+        if (err) throw err;
+        res.send("Successfully Authenticated");
+        console.log(req.user);
+      })
+    }
+  })(req, res, next)
 })
 app.post("/register", (req, res) => {
   User.findOne({ username: req.body.username }, async (err, doc) => {
@@ -64,7 +79,7 @@ app.post("/register", (req, res) => {
 app.post("/user", (req, res) => {
   console.log(req.body)
 })
-
+//----------------------------End of Routes-----------------
 
 //start server
 app.listen(4000, () => {
@@ -73,4 +88,4 @@ app.listen(4000, () => {
 
 
 
-//video: 22:10
+//video: 31 --> authentication isnt working
